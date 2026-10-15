@@ -1,10 +1,7 @@
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import java.awt.BorderLayout;
-import java.io.*;
 import javax.swing.*;
-import javax.swing.border.Border;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -12,8 +9,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.*;
-import java.util.jar.JarEntry;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class HypixelApiApp{
@@ -48,7 +43,6 @@ public class HypixelApiApp{
         JScrollPane scrollPane = new JScrollPane(list);
         scrollPane.setBounds(0,0, 500,450);
 
-        JLabel label = new JLabel();
         JTextArea buyInfo = new JTextArea();
         buyInfo.setBounds(500, 0, 350, 40);
 
