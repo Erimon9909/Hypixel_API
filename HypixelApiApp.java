@@ -17,15 +17,9 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class HypixelApiApp{
-    String rawJson = fetchBazaar();
+    static String rawJson = fetchBazaar();
     public static void main(String[] args){
-
-        Scanner input = new Scanner(System.in);
-        String rawJson = fetchBazaar();
-
         createFrame(formatList(getProductNames(rawJson)), rawJson);
-        
-        
     }
 
     public static List<String> formatList(List<String> items){
@@ -33,6 +27,7 @@ public class HypixelApiApp{
             if (item == null || item.isBlank()){
                 return "";
             }
+
             return Arrays.stream(item.split("_")).map(word -> word.isEmpty() ? "" :
             word.substring(0, 1).toUpperCase() + word.substring(1).toLowerCase())
             .collect(Collectors.joining(" "));
@@ -41,15 +36,27 @@ public class HypixelApiApp{
 
     public static void createFrame(List<String> formattedList, String rawJson){
         JFrame frame = new JFrame();
+        frame.setSize(1000, 600);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLocationRelativeTo(null);
+
         JPanel panel = new JPanel();
         panel.setLayout(null);
+        panel.setSize(1000, 200);
+
         JList<String> list = new JList<>(formattedList.toArray(new String[0]));
         JScrollPane scrollPane = new JScrollPane(list);
+        scrollPane.setBounds(0,0, 500,450);
+
         JLabel label = new JLabel();
         JTextArea buyInfo = new JTextArea();
+        buyInfo.setBounds(500, 0, 350, 40);
+
         JTextArea sellInfo = new JTextArea();
+        sellInfo.setBounds(500, 100, 350, 40);
 
         JButton button = new JButton("Check Price");
+        button.setBounds(0,450,150, 40);
         button.addActionListener(e -> {
             String selectedItem = list.getSelectedValue();
 
@@ -58,28 +65,19 @@ public class HypixelApiApp{
                 buyInfo.setText(printBuyInfo(rawJson, itemId));
                 sellInfo.setText(printSellInfo(rawJson, itemId));
             }
-        });
-        panel.setSize(1000, 200);
-        button.setBounds(0,450,150, 40);
-        scrollPane.setBounds(0,0, 500,450);
-        buyInfo.setBounds(500, 0, 350, 40);
-        sellInfo.setBounds(500, 100, 350, 40);
-
+        });     
+        
         panel.add(button);
         panel.add(scrollPane);
         panel.add(buyInfo);
         panel.add(sellInfo);
         frame.add(panel);
-
-        frame.setSize(1000, 600);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLocationRelativeTo(null);
+        
         frame.setVisible(true);
     }
 
     public static String fetchBazaar(){
     HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
-
     HttpRequest req = HttpRequest.newBuilder().uri(URI.create("https://api.hypixel.net/skyblock/bazaar")).header("Accept", "application/json").GET().build();
 
     try{
@@ -209,9 +207,4 @@ public static List<String> getProductNames(String jsonBody){
     Collections.sort(productIds);
     return productIds;
 }
-
-
 }
-
-
-
