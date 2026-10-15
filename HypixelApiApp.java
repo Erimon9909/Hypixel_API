@@ -23,7 +23,7 @@ public class HypixelApiApp{
         Scanner input = new Scanner(System.in);
         String rawJson = fetchBazaar();
 
-        createFrame(formatList(getProductNames(rawJson)));
+        createFrame(formatList(getProductNames(rawJson)), rawJson);
         
         
     }
@@ -39,24 +39,41 @@ public class HypixelApiApp{
         }).toList();
     }
 
-    public static void createFrame(List<String> formattedList){
+    public static void createFrame(List<String> formattedList, String rawJson){
         JFrame frame = new JFrame();
         JPanel panel = new JPanel();
         panel.setLayout(null);
-        JList list = new JList(formattedList.toArray());
+        JList<String> list = new JList<>(formattedList.toArray(new String[0]));
         JScrollPane scrollPane = new JScrollPane(list);
         JLabel label = new JLabel();
+        JTextArea buyInfo = new JTextArea();
+        JTextArea sellInfo = new JTextArea();
 
         JButton button = new JButton("Check Price");
+        button.addActionListener(e -> {
+            String selectedItem = list.getSelectedValue();
+
+            if(selectedItem != null){
+                String itemId = selectedItem.toUpperCase().replace(" ", "_");
+                buyInfo.setText(printBuyInfo(rawJson, itemId));
+                sellInfo.setText(printSellInfo(rawJson, itemId));
+            }
+        });
         panel.setSize(1000, 200);
         button.setBounds(0,450,150, 40);
         scrollPane.setBounds(0,0, 500,450);
+        buyInfo.setBounds(500, 0, 350, 40);
+        sellInfo.setBounds(500, 100, 350, 40);
 
         panel.add(button);
         panel.add(scrollPane);
+        panel.add(buyInfo);
+        panel.add(sellInfo);
         frame.add(panel);
 
         frame.setSize(1000, 600);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
 
@@ -161,16 +178,20 @@ public static int sellOrderCount(String jsonBody, String itemId){
     return orderCount;
 }
 
-public static void printBuyInfo(String rawJson, String itemId){
-    System.out.printf("Buy Price: %.2f", getBuyPrice(rawJson, itemId));
-    System.out.print(" | Volume: " + getBuyVolume(rawJson, itemId));
-    System.out.println(" | Orders: " + buyOrderCount(rawJson, itemId));
+public static String printBuyInfo(String rawJson, String itemId){
+    double buyPrice = getBuyPrice(rawJson, itemId);
+    double sellOrders = sellOrderCount(rawJson, itemId);
+    int buyVolume = getBuyVolume(rawJson, itemId);
+
+    return String.format("Buy: %.2f | Volume: %d | Orders: %.2f", buyPrice, buyVolume, sellOrders);
 }
 
-public static void printSellInfo(String rawJson, String itemId){
-    System.out.printf("Sell price: %.2f", getSellPrice(rawJson, itemId));
-    System.out.print(" | Volume: " + getSellVolume(rawJson, itemId));
-    System.out.println(" | Orders: " + sellOrderCount(rawJson, itemId));
+public static String printSellInfo(String rawJson, String itemId){
+    double sellPrice = getSellPrice(rawJson, itemId);
+    double buyOrder = buyOrderCount(rawJson, itemId);
+    int sellVolume = getSellVolume(rawJson, itemId);
+
+    return String.format("Sell: %.2f | Volume: %d, Orders: %.2f", sellPrice, sellVolume, buyOrder);
 }
 
 public static List<String> getProductNames(String jsonBody){
