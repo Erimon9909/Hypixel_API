@@ -1,29 +1,63 @@
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import java.awt.BorderLayout;
+import java.io.*;
+import javax.swing.*;
+import javax.swing.border.Border;
+
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 public class HypixelApiApp{
-
+    String rawJson = fetchBazaar();
     public static void main(String[] args){
+
         Scanner input = new Scanner(System.in);
         String rawJson = fetchBazaar();
-        System.out.println(getProductNames(rawJson));
-        String itemId = input.next();
 
+        createFrame(formatList(getProductNames(rawJson)));
         
-        if(rawJson != null){
-            printBuyInfo(rawJson, itemId);
-            printSellInfo(rawJson, itemId);
-        }
+        
+    }
+
+    public static List<String> formatList(List<String> items){
+        return items.stream().map(item -> {
+            if (item == null || item.isBlank()){
+                return "";
+            }
+            return Arrays.stream(item.split("_")).map(word -> word.isEmpty() ? "" :
+            word.substring(0, 1).toUpperCase() + word.substring(1).toLowerCase())
+            .collect(Collectors.joining(" "));
+        }).toList();
+    }
+
+    public static void createFrame(List<String> formattedList){
+        JFrame frame = new JFrame();
+        JPanel panel = new JPanel();
+        panel.setLayout(null);
+        JList list = new JList(formattedList.toArray());
+        JScrollPane scrollPane = new JScrollPane(list);
+        JLabel label = new JLabel();
+
+        JButton button = new JButton("Check Price");
+        panel.setSize(1000, 200);
+        button.setBounds(0,450,150, 40);
+        scrollPane.setBounds(0,0, 500,450);
+
+        panel.add(button);
+        panel.add(scrollPane);
+        frame.add(panel);
+
+        frame.setSize(1000, 600);
+        frame.setVisible(true);
     }
 
     public static String fetchBazaar(){
